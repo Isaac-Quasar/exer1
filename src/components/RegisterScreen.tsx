@@ -7,10 +7,12 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
+import { StackScreenProps } from "@react-navigation/stack";
 import * as yup from "yup";
+import { RootStackParamList } from "../navigation/types";
 
+type Props = StackScreenProps<RootStackParamList, "Register">;
 
-// Esquema de validación con Yup
 const validationSchema = yup.object().shape({
   email: yup.string().email("Correo inválido").required("Correo requerido"),
   password: yup.string().required("Contraseña requerida"),
@@ -20,7 +22,6 @@ const validationSchema = yup.object().shape({
     .required("Confirma tu contraseña"),
 });
 
-// Tipos de estado y acciones
 interface State {
   email: string;
   password: string;
@@ -34,7 +35,6 @@ type Action =
   | { type: "SET_ERRORS"; errors: Record<string, string> }
   | { type: "TOGGLE_PASSWORD_VISIBILITY" };
 
-// Estado inicial
 const initialState: State = {
   email: "",
   password: "",
@@ -43,7 +43,6 @@ const initialState: State = {
   showPassword: false,
 };
 
-// Reducer
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "SET_FIELD":
@@ -57,14 +56,24 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-// Componente principal usando React.FC
-const RegisterScreen: React.FC = () => {
+const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const handleRegister = async () => {
     try {
       await validationSchema.validate(state, { abortEarly: false });
-      Alert.alert("¡Registro exitoso!", `Usuario: ${state.email}`);
+      Alert.alert(
+        "¡Registro exitoso!",
+        `Usuario: ${state.email}`,
+        [
+          {
+            text: "OK",
+            onPress: () =>
+              navigation.navigate("Welcome", { email: state.email }),
+          },
+        ],
+        { cancelable: false }
+      );
     } catch (err) {
       if (err instanceof yup.ValidationError) {
         const errors: Record<string, string> = {};
@@ -78,13 +87,11 @@ const RegisterScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Contenedor del contenido superior */}
       <View style={styles.content}>
         <Text style={styles.title}>Regístrate</Text>
         <Text style={styles.subtitle}>
           Crea Tu Cuenta Y Comienza A Aprender
         </Text>
-
         <TextInput
           style={styles.input}
           placeholder="Ingresa tu Correo Electrónico"
@@ -97,7 +104,6 @@ const RegisterScreen: React.FC = () => {
         {state.errors.email && (
           <Text style={styles.error}>{state.errors.email}</Text>
         )}
-
         <View style={styles.passwordContainer}>
           <TextInput
             style={[styles.input, { flex: 1 }]}
@@ -121,7 +127,6 @@ const RegisterScreen: React.FC = () => {
         {state.errors.password && (
           <Text style={styles.error}>{state.errors.password}</Text>
         )}
-
         <View style={styles.passwordContainer}>
           <TextInput
             style={[styles.input, { flex: 1 }]}
@@ -149,7 +154,6 @@ const RegisterScreen: React.FC = () => {
         {state.errors.confirmPassword && (
           <Text style={styles.error}>{state.errors.confirmPassword}</Text>
         )}
-
         <Text style={styles.terms}>
           Al Hacer Clic En 'Comenzar', Acepto Los{" "}
           <Text style={styles.link}>Términos De Uso</Text> Y Reconozco Que Mi
@@ -157,14 +161,15 @@ const RegisterScreen: React.FC = () => {
           <Text style={styles.link}>Política De Privacidad</Text> De Quasar.
         </Text>
         <Text style={styles.footer}>
-          Ya Tienes Una Cuenta? <Text style={styles.link}>Iniciar Sesión</Text>
+          Ya Tienes Una Cuenta?{" "}
+          <Text
+            style={styles.link}
+            onPress={() => navigation.navigate("Login")}
+          >
+            Iniciar Sesión
+          </Text>
         </Text>
       </View>
-
-      {/*  */}
-      
-
-      {/* Botón de registro */}
       <TouchableOpacity style={styles.button} onPress={handleRegister}>
         <Text style={styles.buttonText}>Regístrate</Text>
       </TouchableOpacity>
@@ -172,19 +177,15 @@ const RegisterScreen: React.FC = () => {
   );
 };
 
-export default RegisterScreen;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
     paddingHorizontal: 20,
     paddingVertical: 70,
-    justifyContent: "space-between", // Espaciado entre el contenido y el botón
+    justifyContent: "space-between",
   },
-  content: {
-    flex: 1,
-  },
+  content: { flex: 1 },
   title: {
     fontSize: 32,
     fontWeight: "bold",
@@ -217,10 +218,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  toggle: {
-    color: "#fff",
-    fontSize: 18,
-  },
+  toggle: { color: "#fff", fontSize: 18 },
   button: {
     backgroundColor: "#0044cc",
     borderRadius: 8,
@@ -232,11 +230,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
-  error: {
-    color: "red",
-    fontSize: 14,
-    paddingTop: 5,
-  },
+  error: { color: "red", fontSize: 14, paddingTop: 5 },
   terms: {
     fontSize: 12,
     color: "#aaa",
@@ -245,14 +239,8 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     lineHeight: 18,
   },
-  link: {
-    color: "#0044cc",
-    fontWeight: "bold",
-  },
-  footer: {
-    textAlign: "center",
-    color: "#aaa",
-    paddingTop: 20,
-  },
+  link: { color: "#0044cc", fontWeight: "bold" },
+  footer: { textAlign: "center", color: "#aaa", paddingTop: 20 },
 });
 
+export default RegisterScreen;

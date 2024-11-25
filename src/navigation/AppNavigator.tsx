@@ -4,10 +4,11 @@ import { NavigationContainer } from "@react-navigation/native";
 import RegisterScreen from "../components/RegisterScreen";
 import LoginScreen from "../components/LoginScreen";
 import WelcomeScreen from "../components/WelcomeScreen";
+import { RootStackParamList } from "../navigation/types";
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<RootStackParamList>();
 
-const AppNavigator = () => {
+const AppNavigator: React.FC = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Register">
