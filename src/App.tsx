@@ -1,5 +1,5 @@
 import React from "react";
-import AppNavigator from "./navigation/AppNavigator"; // Asegúrate de que la ruta sea correcta
+import AppNavigator from "./navigation/AppNavigator";
 
 const App = () => {
   return <AppNavigator />;
